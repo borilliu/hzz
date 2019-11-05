@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.base.RiverLakeChiefDao">
+    <sql id="defaultColums">
+        rlc.id,
+        rlc.user_id as 'account.id',
+        rlc.name,
+        rlc.level as 'level.code',
+        rlc.type as 'type',
+        rlc.division_code as 'division.code',
+        rlc.depart_id as 'depart.id',
+        rlc.duty,
+        rlc.phone,
+        rlc.email,
+        rlc.create_name,
+        rlc.create_by,
+        rlc.create_date,
+        rlc.update_name,
+        rlc.update_by,
+        rlc.update_date
+    </sql>
+
+    <sql id="division">
+        division.id as 'division.id',
+        division.code as 'division.code',
+        division.name as 'division.name',
+        division.en_name as 'division.enName',
+        division.remarks as 'division.remarks',
+        division.sort as 'division.sort'
+    </sql>
+
+    <select id="listRiverLakeChiefs" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        ,buser.username as 'account.userName',
+        depart.org_code as 'depart.orgCode'
+        from t_sl_rl_chief rlc
+        left join t_s_depart depart on depart.id = rlc.depart_id
+        left join t_s_user user on user.id = rlc.user_id
+        left join t_s_base_user buser on buser.id = user.id
+        where rlc.depart_id = #{departId};
+    </select>
+
+    <select id="countByAccountName" resultType="java.lang.Integer">
+        select count(a.id)
+        from t_sl_rl_chief a
+        left join t_s_base_user b on a.user_id = b.ID
+        where b.username = #{userName};
+    </select>
+
+    <select id="listAll" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        ,<include refid="division"/>
+        ,buser.username as 'account.userName',
+        depart.org_code as 'depart.orgCode'
+        from t_sl_rl_chief rlc
+        left join t_s_user user on user.id = rlc.user_id
+        left join t_s_base_user buser on buser.id = user.id
+        left join t_s_depart depart on depart.id = rlc.depart_id
+        left join t_sl_division division on division.code = rlc.division_code
+    </select>
+
+    <select id="getByUserId" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        from t_sl_rl_chief rlc
+        where rlc.user_id = #{userId}
+    </select>
+
+    <select id="listByDivisionCode" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        from t_sl_rl_chief rlc
+        where rlc.division_code = #{divisionCode}
+    </select>
+
+    <select id="get" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        from t_sl_rl_chief rlc
+        where rlc.id = #{id}
+    </select>
+
+    <select id="listByRoleCode" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        ,g.name as 'division.name',
+        g.parent_codes as 'division.parentCodes'
+        from t_sl_rl_chief rlc
+        left join t_s_user b on b.id = rlc.user_id
+        left join t_s_role_user c on c.userid = b.id
+        left join t_s_role d on d.id = c.roleid
+        left join t_sl_division g on g.code = rlc.division_code
+        where d.rolecode = #{roleCode};
+    </select>
+
+    <select id="listByDivision" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        from t_sl_rl_chief rlc
+        where division_code = #{division.code}
+    </select>
+    <select id="listByContainsParentDivision" resultType="RiverLakeChiefEntity">
+        select
+        <include refid="defaultColums"/>
+        ,g.parent_codes as 'division.parentCodes'
+        from t_sl_rl_chief rlc
+        left join t_sl_division g on g.code = rlc.division_code
+        where g.parent_codes LIKE concat('%', #{parentDivision.code}, '%');
+    </select>
+</mapper>

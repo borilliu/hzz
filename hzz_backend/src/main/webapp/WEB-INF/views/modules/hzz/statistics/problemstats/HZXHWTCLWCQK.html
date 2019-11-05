@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>巡河问题处理完成情况</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .left {
+            float: left;
+        }
+
+        .indexbox {
+            width: 140px;
+            height: 80px;
+            background-color: #6777ef;
+            float: left;
+            margin-top: 10px;
+            margin-left: 40px;
+            border-radius: 10px;
+        }
+
+        .indexcout {
+            font-size: 24px;
+            font-weight: 100;
+            text-align: center;
+            color: #efefef;
+            margin-top: 10px;
+        }
+
+        .indextext {
+            color: #FFF;
+            text-align: center;
+        }
+    </style>
+    <script type="text/javascript"
+        src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/plug-in/jquery/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript"
+        src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/plug-in/echart4.3.0/dist/echarts.min.js"></script>
+    <script type="text/javascript"
+        src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/plug-in/echart4.3.0/dist/extension/dataTool.min.js"></script>
+    <script type="text/javascript"
+        src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/plug-in/echart4.3.0/dist/extension/bmap.min.js"></script>
+    <script type="text/javascript"
+        src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/js/modules/statistics/problemstats/problem_stats_home.js"></script>
+    <script>
+        $(function () {
+            resizeDivContainer();
+        });
+
+        $(window).resize(function () {
+            resizeDivContainer();
+        });
+
+        function resizeDivContainer() {
+            var windowH = $(window).height();
+            var windowW = $(window).width();
+
+            var h = (windowH - 260) / 2;
+
+            //$(document).attr("title", "" + windowH + "，" + h);
+
+            $("#div1").height(h);
+            $("#div2").height(h);
+
+            var w = (windowW - 30) / 10;
+            $("#div1_1").width(w * 4);
+            $("#div1_2").width(w * 6);
+        }
+    </script>
+</head>
+
+<body>
+    <div
+        style="padding-left:50px;height: 100px; border: 2px solid #efefef; font-family: 'Microsoft YaHei'; line-height: 30px; font-size: 14px; margin: 10px; overflow: hidden;">
+        <form>
+            日期范围:
+            <input type="text" id="startTime" name="startTime">- <input type="text" id="endTime" name="endTime">
+            <input type="button" value="查询" onclick="search()" />
+            <input type="button" value="本年" onclick="searBycurYear()" />
+            <input type="button" value="本月" onclick="searBycurMonth()" />
+            <br>
+            当前地区:
+            <button class="dropbtn">湖南省</button>
+
+            <div class="dropdown-content" style="text-decoration:none ; word-spacing:20px">
+                <a href="#">长沙市</a>
+                <a href="#"> 衡阳市 </a>
+                <a href="#"> 株洲市 </a>
+            </div>
+        </form>
+    </div>
+    <div
+        style="padding-left:50px;height: 100px; border: 2px solid #efefef; font-family: 'Microsoft YaHei'; line-height: 30px; font-size: 14px; margin: 10px; overflow: hidden;">
+        <div class="left">
+            <form>地区：<input type="text" name="firstname"></form>
+            <form>时间：<input type="text" name="firstname"></form>
+        </div>
+        <div class="left">
+            <div class="indexbox">
+                <div id="statsTypeTotal" class="indexcout">12</div>
+                <div class="indextext">类型总数</div>
+            </div>
+        </div>
+
+        <div class="left">
+            <div class="indexbox" style="background-color:#51e3c0">
+                <div id="eventTotal" class="indexcout">12</div>
+                <div class="indextext">事件总数</div>
+            </div>
+        </div>
+
+        <div class="left">
+            <div class="indexbox" style="background-color:#ffa426">
+                <div id="processedTotal" class="indexcout">12</div>
+                <div class="indextext">已处理总数</div>
+            </div>
+        </div>
+
+        <div class="left">
+            <div class="indexbox" style="background-color:#fc544b">
+                <div id="pendingTotal" class="indexcout">12</div>
+                <div class="indextext">待处理总数</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="div1" style="height: 100px; margin: 10px;">
+        <div id="div1_1" style="float: left; height: 100%; width: 200px; background-color: #efefef; overflow: hidden;">
+            <div class="three-left">
+                <p style=" text-align:center">2019年1-9月巡河问题占比图</p>
+                <div id="pratolRatioEchart" style="width:700px;height: 280px"></div>
+                <!-- <div id="pratolRatioEchart" style="width:100%;height: 80%"></div> -->
+            </div>
+
+        </div>
+        <div id="div1_2" style="float: right; height: 100%; width: 200px; background-color: #efefef; overflow: hidden;">
+            <div class="three-right">
+                <p style="text-align:center">2019年1-9月巡河问题处理完成情况</p>
+                <div id="proceesedEchart" style="width:1100px;height: 280px"></div>
+            </div>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+    <div id="div2" style="height: 100px; margin: 10px; background-color: #efefef; overflow: hidden;">
+        <p style="text-align:center">近一年巡河问题处理完成次数变化趋势图</p>
+        <div id="yearEchart" style="width:1900px;height: 280px"></div>
+    </div>
+</body>
+
+</html>

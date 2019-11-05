@@ -1,0 +1,9 @@
+1、t_sl_rl_project_water_function_quality表 通过project_water_function_id字段 与t_sl_rl_project_water_function表进行关联
+
+2、
+字典分组表: t_s_typegroup
+字典表: t_s_type
+t_s_type 通过typegroupid 关联t_s_typegroup
+字典表数据，在项目初始化时就会缓存到ecache中。初始化方法为org.jeecgframework.web.system.service.impl.SystemServiceImpl.initAllTypeGroups
+
+3、使用jeecg在线开发功能，需要把\src\main\resources\jeecg\jeecg_database.properties文件中的数据库配置改成自己项目的数据配置

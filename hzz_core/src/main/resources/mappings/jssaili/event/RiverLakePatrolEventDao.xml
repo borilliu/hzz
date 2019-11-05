@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.event.RiverLakePatrolEventDao">
+    <sql id="defaultColumn">
+        a.id as 'id',
+        a.base_river_lake_patrol_id as 'tslBaseRiverLakePatrol.id',
+        a.base_river_lake_code as 'tslBaseRiverLake.code',
+        a.source_type as 'sourceType',
+        a.quest_type as 'questType',
+        a.event_date as 'eventDate',
+        a.event_lng as 'eventLng',
+        a.event_lat as 'eventLat',
+        a.event_address as 'eventAddress',
+        a.name as 'name',
+        a.code as 'code',
+        a.memo as 'memo',
+        a.user_submit_id as 'tsSubmitUser.id',
+        a.event_status as 'eventStatus',
+        a.division_divisionCode as 'tslDivision.code',
+        a.handle_memo as 'handleMemo',
+        a.handle_date as 'handleDate',
+        a.handle_is_tf as 'handleIsTF',
+        a.handle_name as 'handleName',
+        a.handle_type as 'handleType',
+        a.handle_phone as 'handlePhone',
+        a.handle_dept as 'handleDept',
+        a.handle_hour as 'handleHour',
+        a.return_date as 'returnDate',
+        a.mass_satis_p,
+        a.complainant_name as 'complainantName',
+        a.complainant_phone as 'complainantPhone',
+        a.finished_day as 'finishedDay',
+        a.create_date as 'createDate',
+        a.create_by as 'createBy',
+        a.create_name as 'createName',
+        a.lid as 'lid',
+        a.proc_ins_id as 'procInsId'
+    </sql>
+
+    <update id="updateStatus">
+        update t_sl_base_river_lake_patrol_event
+        set event_status = #{statusCode}
+        where proc_ins_id = #{procInsId};
+    </update>
+
+    <update id="updateProcInsIdById">
+        update t_sl_base_river_lake_patrol_event
+        set proc_ins_id = #{procInsId}
+        where id = #{id};
+    </update>
+
+    <select id="listTarget" resultType="com.saili.hzz.core.vo.AreaRiverPatrolStatsGridVo">
+        select b.name as 'areaName',
+               count(1)       as 'target'
+        from t_sl_base_river_lake_patrol_event a
+                 left join t_sl_division b on b.code = a.division_divisionCode
+        where b.parent_code = #{form.city.code}
+        group by a.division_divisionCode
+    </select>
+
+    <select id="listFinish" resultType="com.saili.hzz.core.vo.AreaRiverPatrolStatsGridVo">
+        select b.name as 'areaName',
+               count(1)       as 'value'
+        from t_sl_base_river_lake_patrol_event a
+                 left join t_sl_division b on b.code = a.division_divisionCode
+        where b.parent_code = #{form.city.code}
+          and event_status = '-1'
+        group by a.division_divisionCode
+    </select>
+
+    <select id="list" resultType="TSLBaseRiverLakePatrolEvent">
+        select
+        <include refid="defaultColumn"/>
+        ,b.name as 'tslDivision.name',
+        b.parent_codes as 'tslDivision.parentCodes'
+        from t_sl_base_river_lake_patrol_event a
+        left join t_sl_division b on b.code = a.division_divisionCode
+        where a.create_date between #{form.startTime} and #{form.endTime}
+        <if test="form.city != null and form.city.code != ''">
+            and b.parent_code = #{form.city.code}
+        </if>
+        <if test="form.province != null and form.province.code != ''">
+            and b.parent_code = #{form.province.code}
+        </if>
+    </select>
+
+    <select id="listByParentDivision" resultType="TSLBaseRiverLakePatrolEvent">
+        select
+        <include refid="defaultColumn"/>
+        ,b.name as 'tslDivision.name',
+        b.parent_codes as 'tslDivision.parentCodes'
+        from t_sl_base_river_lake_patrol_event a
+        left join t_sl_division b on b.code = a.division_divisionCode
+        where b.parent_codes LIKE concat('%', #{parentDivision.code}, '%');
+    </select>
+
+    <select id="listByProblemHandleStatsForm" resultType="TSLBaseRiverLakePatrolEvent">
+        select
+        <include refid="defaultColumn"/>
+        ,b.name as 'tslDivision.name',
+        b.parent_codes as 'tslDivision.parentCodes'
+        from t_sl_base_river_lake_patrol_event a
+        left join t_sl_division b on b.code = a.division_divisionCode
+        where 1=1
+        <if test="null != form.area and form.area.code != ''">
+            and b.parent_codes LIKE concat('%', #{form.area.code}, '%') or a.division_divisionCode = #{form.area.code}
+        </if>
+        <if test="null != form.startTime and null != form.endTime">
+            and a.create_date between #{form.startTime} and #{form.endTime}
+        </if>
+    </select>
+
+    <select id="listLastYearByProblemHandleStatsForm" resultType="TSLBaseRiverLakePatrolEvent">
+        select
+        <include refid="defaultColumn"/>
+        ,b.name as 'tslDivision.name',
+        b.parent_codes as 'tslDivision.parentCodes'
+        from t_sl_base_river_lake_patrol_event a
+        left join t_sl_division b on b.code = a.division_divisionCode
+        where 1=1
+        <if test="null != form.area and form.area.code != ''">
+            and b.parent_codes LIKE concat('%', #{form.area.code}, '%');
+        </if>
+        <if test="null != form.getLastYearStartTime and null != form.endTime">
+            and a.create_date between #{form.getLastYearStartTime} and #{form.endTime}
+        </if>
+    </select>
+</mapper>

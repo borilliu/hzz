@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+         http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd 
+		http://cxf.apache.org/jaxws 
+   		http://cxf.apache.org/schemas/jaxws.xsd">
+	<!-- 自动扫描controller包下的所有类，使其认为spring mvc的控制器 -->
+	<!-- 加载controller的时候,不加载service,因为此时事物并未生效,若此时加载了service,那么事物无法对service进行拦截 -->
+	<context:component-scan base-package="com.saili.hzz.web.*,com.saili.hzz.web.*,com.jeecg.*,com.saili.hzz.*,com.saili.hzz.jwt.*">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+
+	<!-- ApplicationContext -->
+	<bean class="com.saili.hzz.core.util.ApplicationContextUtil"></bean>
+	<!-- 配置缓存工具类（支持redis\ehcache切换） <bean class="com.saili.hzz.web.system.service.impl.RedisCacheService"/> -->
+	<bean class="com.saili.hzz.web.system.service.impl.EhcacheService" />
+
+	<!-- 替换元框架配置 start -->
+	<!-- 默认的注解映射的支持，org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping -->
+	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
+		<mvc:message-converters register-defaults="true">
+			<!-- 将StringHttpMessageConverter的默认编码设为UTF-8 -->
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" index="0"/>
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/plain;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+			<!-- 将Jackson2HttpMessageConverter的默认格式化输出为false -->
+			<!--			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">-->
+			<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+				<!--				<property name="prettyPrint" value="false"/>-->
+				<property name="objectMapper">
+					<!--					<bean class="com.saili.hzz.core.common.controller.JsonMapper"></bean>-->
+					<bean class="com.saili.hzz.core.common.controller.CustomObjectMapper"></bean>
+				</property>
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>text/json;charset=UTF-8</value>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<!-- REST中根据URL后缀自动判定Content-Type及相应的View -->
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<property name="mediaTypes" >
+			<map>
+				<entry key="xml" value="application/xml"/>
+				<entry key="json" value="application/json"/>
+			</map>
+		</property>
+		<property name="ignoreAcceptHeader" value="true"/>
+		<property name="favorPathExtension" value="true"/>
+	</bean>
+	<!-- 替换元框架配置 end -->
+
+<!--	<mvc:resources mapping="/gzts/pages/**" location="/pages/**"></mvc:resources>-->
+<!--	<mvc:resources location="/pages/gzts" mapping="/**/*.jsp" />-->
+	<mvc:resources location="static/pages/gzts" mapping="/gzts/**" />
+<!--	<mvc:default-servlet-handler></mvc:default-servlet-handler>-->
+
+	<!-- 默认的视图解析器 在上边的解析错误时使用 (默认使用html)- -->
+	<bean id="defaultViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:order="3">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="contentType" value="text/html" />
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" p:defaultEncoding="UTF-8">
+		<property name="maxUploadSize">
+			<value>104857600</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+
+	<!-- Bean解析器,级别高于默认解析器,寻找bean对象进行二次处理 -->
+	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="0">
+	</bean>
+	<!-- Excel 处理 根据用户输入进行对象处理 -->
+	<bean id="jeecgExcelView" class="org.jeecgframework.poi.excel.view.JeecgSingleExcelView" />
+	<bean id="jeecgTemplateExcelView" class="org.jeecgframework.poi.excel.view.JeecgTemplateExcelView" />
+	<bean id="jeecgTemplateWordView" class="org.jeecgframework.poi.excel.view.JeecgTemplateWordView" />
+	<bean id="jeecgMapExcelView" class="org.jeecgframework.poi.excel.view.JeecgMapExcelView" />
+	<!-- 方言 -->
+	<bean id="dialect" class="com.saili.hzz.core.common.hibernate.dialect.DialectFactoryBean">
+		<property name="dbType" value="${jdbc.dbType}" />
+	</bean>
+	<!-- 异常处理类 -->
+	<bean id="exceptionHandler" class="com.saili.hzz.core.common.exception.GlobalExceptionResolver" />
+
+	<!-- 拦截器 -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.saili.hzz.core.interceptors.EncodingInterceptor" />
+		</mvc:interceptor>
+		<!-- [接口方案一] API 接口验签拦截器 ，签名统一校验（暂时注释掉提高平台性能，需要此功能，可以放开注释） <mvc:interceptor> 
+			<mvc:mapping path="/api/**" /> <bean class="org.jeecgframework.core.interceptors.SignInterceptor" 
+			/> </mvc:interceptor> -->
+		<!-- [接口方案二] JWT Token校验方式拦截器，针对Restful请求接口 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.saili.hzz.jwt.aop.RestAuthTokenInterceptor">
+				<property name="excludeUrls">
+					<list>
+						<value>/rest/v2/api-docs</value>
+						<value>/rest/app/login/doLogin</value>
+					</list>
+				</property>
+				<property name="excludeContainUrls">
+					<list>
+						<value>/rest/tokens</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:interceptor>
+		<!-- 登录权限拦截器 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.saili.hzz.core.interceptors.AuthInterceptor">
+				<property name="excludeUrls">
+					<list>
+						<value>loginController.do?goPwdInit</value>
+						<value>loginController.do?pwdInit</value>
+						<value>loginController.do?login</value>
+						<value>loginController.do?logout</value>
+						<value>loginController.do?changeDefaultOrg</value>
+						<value>loginController.do?login2</value>
+						<value>loginController.do?login3</value>
+						<value>loginController.do?apicture</value>
+						<value>loginController.do?getAPictureInfo</value>
+						<value>loginController.do?setPFunction</value>
+						<value>loginController.do?checkuser</value>
+						<value>loginController.do?checkuser=</value>
+						<value>systemController.do?saveFiles</value>
+						<!-- 邮件密码重置 -->
+						<value>loginController.do?goResetPwd</value>
+						<value>loginController.do?resetPwd</value>
+						<value>loginController.do?goResetPwdMail</value>
+						<value>loginController.do?sendResetPwdMail</value>
+						<value>userController.do?userOrgSelect</value>
+						<!--移动图表 -->
+						<value>cgDynamGraphController.do?design</value>
+						<value>cgDynamGraphController.do?datagrid</value>
+
+						<!-- 菜单样式图标预览 -->
+						<value>views/common/functionIconStyleList.jsp</value>
+						<value>chat/imController/showOrDownByurl.do</value>
+						<!-- 接收远程定时任务开关指令 -->
+						<value>timeTaskController.do?remoteTask</value>
+						<!-- swagger支持 -->
+						<value>rest/v2/api-docs</value>
+					</list>
+				</property>
+				<!-- 模糊匹配 -->
+				<property name="excludeContainUrls">
+					<list>
+						<!--单点登录 -->
+						<value>toLogin.do</value>
+						<!--restful请求统一不做拦截，采用jwt接口机制验证 -->
+						<value>rest/</value>
+						<!-- 公众投诉是获取 -->
+						<value>gzts/</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+	<!-- Online表单配置引入 -->
+	<import resource="classpath*:com/saili/hzz/web/cgform/common/spring-mvc-cgform.xml" />
+	<!-- Jeecg 插件开发 -->
+	<bean class="org.jeecgframework.p3.core.utils.common.ApplicationContextUtil"></bean>
+	<import resource="classpath*:config/spring-config-p3.xml" />
+</beans>

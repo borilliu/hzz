@@ -1,0 +1,90 @@
+alter table t_sl_base_river_lake_patrol_event add column proc_ins_id varchar(100) comment '流程编号';
+alter table t_sl_division add column divisionNameEn varchar(32) DEFAULT NULL;
+
+
+#2019-09-16
+create table t_sl_river_patrol_process_handled
+(
+    id                      varchar(32)     not null comment '序号' primary key,
+    proc_inst_id            varchar(64)     default null comment '流程id',
+    task_def_key            varchar(255)    default null comment '任务节点key',
+    handle_user_id          varchar(32)     default null comment '处理人id',
+    handle_date             datetime        default null comment '处理时间',
+    handle_detail           varchar(255)    default null comment '处理详情',
+    create_name             varchar(50)     null comment '创建人名称',
+    create_by               varchar(50)     null comment '创建人登录名称',
+    create_date             datetime        null comment '填表日期',
+    update_name             varchar(50)     null comment '更新人名称',
+    update_by               varchar(50)     null comment '更新人登录名称',
+    update_date             datetime        null comment '更新日期'
+) comment '已经处理的巡河流程' ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+#2019-09-25
+alter table t_sl_division add column parent_codes varchar(2000) default null comment '父级编号' after parent_code;
+
+# 更新省级的parent_codes
+update t_sl_division
+set parent_codes = concat('0,')
+where PARENT_divisionCode = '0';
+
+# 更新市级的parent_codes
+update (select a.divisionCode as 'divisionCode', a.parent_codes as 'parent_codes', a.PARENT_divisionCode as 'PARENT_divisionCode'
+        from t_sl_division a
+                 left join t_sl_division parent on parent.divisionCode = a.PARENT_divisionCode
+        where parent.PARENT_divisionCode = '0') s, t_sl_division f
+set f.parent_codes = concat('0,', f.PARENT_divisionCode, ',')
+where f.divisionCode = s.divisionCode;
+
+# 更新县级/区级的parent_codes
+update (select e.divisionCode as 'divisionCode', d.parent_codes as 'parent_codes', e.PARENT_divisionCode as 'PARENT_divisionCode'
+        from t_sl_division e
+                 left join (SELECT a.divisionCode as 'divisionCode', a.parent_codes as 'parent_codes', a.PARENT_divisionCode as 'PARENT_divisionCode'
+                            from t_sl_division a
+                                     left join t_sl_division parent on parent.divisionCode = a.PARENT_divisionCode
+                            where LENGTH(a.parent_codes) - LENGTH(REPLACE(a.parent_codes,',','' )) = 2) d on d.divisionCode = e.PARENT_divisionCode
+        where d.divisionCode is not null) s, t_sl_division f
+set f.parent_codes = concat(s.parent_codes, f.PARENT_divisionCode, ',')
+where f.divisionCode = s.divisionCode;
+
+# 更新乡级的parent_codes
+update (select e.divisionCode as 'divisionCode', d.parent_codes as 'parent_codes', e.PARENT_divisionCode as 'PARENT_divisionCode'
+        from t_sl_division e
+                 left join (SELECT a.divisionCode as 'divisionCode', a.parent_codes as 'parent_codes', a.PARENT_divisionCode as 'PARENT_divisionCode'
+                            from t_sl_division a
+                                     left join t_sl_division parent on parent.divisionCode = a.PARENT_divisionCode
+                            where LENGTH(a.parent_codes) - LENGTH(REPLACE(a.parent_codes,',','' )) = 3) d on d.divisionCode = e.PARENT_divisionCode
+        where d.divisionCode is not null) s, t_sl_division f
+set f.parent_codes = concat(s.parent_codes, f.PARENT_divisionCode, ',')
+where f.divisionCode = s.divisionCode;
+
+# 更新村级的parent_codes
+update (select e.divisionCode as 'divisionCode', d.parent_codes as 'parent_codes', e.PARENT_divisionCode as 'PARENT_divisionCode'
+        from t_sl_division e
+                 left join (SELECT a.divisionCode as 'divisionCode', a.parent_codes as 'parent_codes', a.PARENT_divisionCode as 'PARENT_divisionCode'
+                            from t_sl_division a
+                                     left join t_sl_division parent on parent.divisionCode = a.PARENT_divisionCode
+                            where LENGTH(a.parent_codes) - LENGTH(REPLACE(a.parent_codes,',','' )) = 4) d on d.divisionCode = e.PARENT_divisionCode
+        where d.divisionCode is not null) s, t_sl_division f
+set f.parent_codes = concat(s.parent_codes, f.PARENT_divisionCode, ',')
+where f.divisionCode = s.divisionCode;
+
+
+
+
+alter table t_sl_division change divisionCode code varchar(32) default null comment '地区编号' after id;
+alter table t_sl_division change PARENT_divisionCode parent_code varchar(32) default null comment '父级地区编号' after code;
+alter table t_sl_division change divisionName name varchar(32) default null comment '地区名称' after code;
+alter table t_sl_division change divisionNameEn en_name varchar(32) default null comment '英文地区名称' after name;
+alter table t_sl_division change divisionOrder sort varchar(32) default null comment '排序' after en_name;
+alter table t_sl_division change divisionMemo remarks varchar(32) default null comment '排序' after sort;
+
+alter table t_sl_division change sys_company_code sys_company_code varchar(50) default null comment '所属单位' after sort;
+alter table t_sl_division change sys_org_code sys_org_code varchar(50) default null comment '所属部门' after sort;
+
+
+#2019-10-18
+alter table t_sl_base_river_lake add column public_signs_lng double default null comment '河长公示牌经度';
+alter table t_sl_base_river_lake add column public_signs_lat double default null comment '河长公示牌纬度';
+
+

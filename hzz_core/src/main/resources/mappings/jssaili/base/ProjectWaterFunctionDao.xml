@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.base.ProjectWaterFunctionDao">
+    <sql id="defaultColums">
+        a.id,
+        a.primaryName,
+        a.secondaryName,
+        a.useWaterType,
+        a.waterFunctionLength,
+        a.waterQuality,
+        a.startSection,
+        a.endSection,
+        a.monitoringSection
+    </sql>
+
+    <select id="listNoRefProjectWaterFunctionQuality" resultType="TSLRLProjectWaterFunction">
+        select
+            distinct <include refid="defaultColums"/>
+            ,b.code as 'code',
+            b.name as 'name'
+        from t_sl_rl_project_water_function a
+        left join t_sl_base_river_lake b on b.id = a.id
+        left join t_sl_rl_project_water_function_quality c on c.project_water_function_id = a.id
+        where a.monitoringSection <![CDATA[ <> ]]> '' and c.id is null
+        <if test="id != null and id != ''">
+            or c.id = #{id}
+        </if>;
+    </select>
+</mapper>

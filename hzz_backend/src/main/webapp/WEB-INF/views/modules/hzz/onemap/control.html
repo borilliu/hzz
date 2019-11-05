@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>一张图</title>
+
+    <style type="text/css">
+        html {
+            height: 100%
+        }
+
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px
+        }
+
+        #container {
+            height: 100%
+        }
+    </style>
+
+    <link rel="stylesheet"
+        href="E:\whuab_mc\saili\project\PC\hzz-pc\src\main\webapp\static\plug-in\bootstrap-3.3.7-dist\css\bootstrap.css">
+    <link href="E:\whuab_mc\saili\project\PC\hzz-pc\src\main\webapp\static\plug-in\select2\css\select2.min.css"
+        rel="stylesheet" />
+
+    <script type="text/javascript"
+        src="E:\whuab_mc\saili\project\PC\hzz-pc\src\main\webapp\plug-in\jquery\jquery-1.9.1.js"></script>
+    <script src="E:\whuab_mc\saili\project\PC\hzz-pc\src\main\webapp\static\plug-in\select2\js\select2.min.js"></script>
+    <script type="text/javascript"
+        src="E:\whuab_mc\saili\project\PC\hzz-pc\src\main\webapp\static\plug-in\bootstrap-3.3.7-dist\js\bootstrap.js"></script>
+</head>
+
+<body>
+    <div class="contiainer">
+        <div class="row">
+            <div id="division_select" class="col-md-4 col-md-offset-4">
+                <select class="form-control select2">
+
+                </select>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script type="text/javaScript">
+    $(function name(params) {
+
+        // "results": [
+        //     {
+        //         "id": 1,
+        //         "text": "Option 1"
+        //     },
+        //     {
+        //         "id": 2,
+        //         "text": "Option 2",
+        //         "selected": true
+        //     },
+        //     {
+        //         "id": 3,
+        //         "text": "Option 3",
+        //         "disabled": true
+        //     }
+        // ]
+
+
+        $('#division_select').select2({
+            ajax: {
+                url: '/slDivisionController/listByParentCode.do',
+                dataType: 'json',
+                data: {
+                    divisionCode: "320000000000"
+                },
+                processResults: function (data) {
+                    var results = new Array();
+                    $.each(data, function(i, o) {
+                        var result = {
+                            id: o.code,
+                            text: o.name
+                        }
+                        results.push(result);
+                    });
+                    return {
+                        results: results
+                    };
+            }
+        });
+    });
+</script>

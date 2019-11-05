@@ -1,0 +1,1 @@
+select riverLake.* from t_sl_base_river_lake riverLake where riverLake.code = :testcode;

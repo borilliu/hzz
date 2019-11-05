@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.sys.UserDao">
+    <sql id="defaultColums">
+        id,
+        email,
+        mobilePhone,
+        officePhone,
+        signatureFile,
+        update_name as 'updateName',
+        update_date as 'updateDate',
+        update_by as 'updateBy',
+        create_name as 'createName',
+        create_date as 'createDate',
+        create_by as 'createBy',
+        portrait,
+        imsign,
+        dev_flag as 'devFlag',
+        user_type as 'userType',
+        person_type as 'personType',
+        sex,
+        emp_no as 'empNo',
+        citizen_no as 'citizenNo',
+        fax,
+        address,
+        post,
+        memo,
+        userDutys,
+        userOrderBy
+    </sql>
+
+    <sql id="baseUserColums">
+        activitiSync,
+        browser,
+        password,
+        realname,
+        signature,
+        status,
+        userkey,
+        username,
+        departid,
+        user_name_en as 'userNameEn',
+        delete_flag as 'deleteFlag',
+        division_divisionCode as 'divisionDivisionCode',
+        usertype_code as 'usertypeDode'
+    </sql>
+
+    <select id="countByUserName" resultType="java.lang.Integer">
+        select count(b.username)
+        from t_s_user a
+        left join t_s_base_user b on a.id = b.ID
+        where b.username = #{userName} and b.ID is not null;
+    </select>
+</mapper>

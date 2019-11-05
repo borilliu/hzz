@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>巡河问题统计</title>
+    <style>
+        .one,
+        .two {
+            width: 1140px;
+            height: 100px;
+            border-color: #efefef;
+            border-style: solid;
+            font-size: 14px;
+            font-family: "思源黑体 CN Normal";
+            line-height: 30px;
+        }
+
+        .two {
+            margin-top: 10px;
+        }
+
+        .three {
+            margin-top: 10px;
+        }
+
+        .shang {
+            width: 1140px;
+            height: 300px;
+        }
+
+        .xia {
+            margin-top: 10px;
+            width: 1140px;
+            height: 320px;
+            background-color: #efefef;
+        }
+
+        .two-left {
+            margin-top: 10px;
+            float: left;
+        }
+
+        .leixing {
+            width: 140px;
+            height: 80px;
+            background-color: #6777ef;
+            float: left;
+            margin-top: 10px;
+            margin-left: 40px;
+            border-radius: 10px;
+        }
+
+        .leixing-number {
+            font-size: 24px;
+            font-weight: 100;
+            text-align: center;
+            color: #efefef;
+            margin-top: 10px;
+        }
+
+        .leixing-1 {
+            color: #FFF;
+            text-align: center;
+        }
+
+        .two-right-2 {
+            background-color: #51e3c0;
+            margin-left: 80px;
+            border-radius: 10px;
+        }
+
+        .three-left {
+            width: 500px;
+            height: 300px;
+            background-color: #efefef;
+            float: left;
+        }
+
+        .three-right {
+            width: 620px;
+            height: 300px;
+            background-color: #efefef;
+            float: left;
+            margin-left: 18px;
+        }
+    </style>
+
+    <script type="text/javascript" src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/plug-in/jquery/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/plug-in/echart4.3.0/dist/echarts.min.js"></script>
+    <script type="text/javascript" src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/plug-in/echart4.3.0/dist/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/plug-in/echart4.3.0/dist/extension/bmap.min.js"></script>
+    <script type="text/javascript" src="E:/whuab_mc/saili/project/PC/hzz-pc/src/main/webapp/static/js/modules/statistics/problemstats/problem_stats_home.js"></script>
+</head>
+
+<body>
+    <div>
+        <div class="one">
+            <form>
+                日期范围: <input type="text" id="startTime" name="startTime">- <input type="text" id="endTime" name="endTime">
+                <input type="button" value="查询" style="width:50px; height:40px;" onclick="search()" />
+                <input type="button" value="本年" style="width:80px; height:40px;" onclick="searBycurYear()" />
+                <input type="button" value="本月" style="width:80px; height:40px;" onclick="searBycurMonth()" />
+                <br>
+                当前地区:<button class="dropbtn">湖南省</button>
+
+                <div class="dropdown-content" style="text-decoration:none ; word-spacing:20px">
+                    <a href="#">长沙市</a>
+                    <a href="#"> 衡阳市 </a>
+                    <a href="#"> 株洲市 </a>
+                </div>
+        </div>
+
+        <div class="two">
+            <div class="two-left">
+                <form>地区：<input type="text" name="firstname"></form>
+                <form>时间: <input type="text" name="firstname"></form>
+            </div>
+            <div class="two-right">
+                <div class="leixing">
+                    <div id="statsTypeTotal" class="leixing-number">12</div>
+                    <div class="leixing-1">类型总数</div>
+                </div>
+            </div>
+
+            <div class="two-right-2">
+                <div class="leixing" style="background-color:#51e3c0">
+                    <div id="eventTotal" class="leixing-number">12</div>
+                    <div class="leixing-1">事件总数</div>
+                </div>
+            </div>
+
+            <div class="two-right-2">
+                <div class="leixing" style="background-color:#ffa426">
+                    <div id="processedTotal" class="leixing-number">12</div>
+                    <div class="leixing-1">已处理总数</div>
+                </div>
+            </div>
+
+            <div class="two-right-2">
+                <div class="leixing" style="background-color:#fc544b">
+                    <div id="pendingTotal" class="leixing-number">12</div>
+                    <div class="leixing-1">待处理总数</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="three">
+            <div class="shang">
+                <div class="three-left">
+                    <p style=" text-align:center">2019年1-9月巡河问题占比图</p>
+                    <div id="pratolRatioEchart" style="height: 80%"></div>
+                </div>
+                <div class="three-right">
+                    <p style="text-align:center">2019年1-9月巡河问题处理完成情况</p>
+                    <div id="proceesedEchart" style="height: 80%"></div>
+
+                </div>
+            </div>
+            <div class="xia">
+                <p style="text-align:center">近一年巡河问题处理完成次数变化趋势图</p>
+                <div id="yearEchart" style="height: 88%"></div>
+            </div>
+
+        </div>
+</body>
+
+</html>

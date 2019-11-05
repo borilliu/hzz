@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.base.directory.ReservoirDao">
+    <sql id="defaultColums">
+        a.id,
+        a.reservoirType,
+        a.engineeringGrade,
+        a.engineeringScale,
+        a.reservoirGrade,
+        a.highFloodLevel,
+        a.normalWaterLevel,
+        a.floodPeriodLevel,
+        a.totalCapacity,
+        a.floodCapacity,
+        a.floodStorage,
+
+        b.code,
+        b.name,
+        b.PARENT_CODE as 'parent.code',
+        b.river_lake_type as 'riverLakeType',
+        b.riverRangeData,
+        b.mapCenterLngLat,
+        b.mapZoom,
+        b.archives_doc as 'archivesDoc',
+        b.policy_doc as 'policyDoc',
+        b.public_signs_doc as 'publicSignsDoc',
+        b.public_signs_lnglat as 'publicSignsLngLat',
+        b.photo,
+        b.waterArea,
+        b.public_signs_lng as 'publicSignsLng',
+        b.public_signs_lat as 'publicSignsLat',
+        b.division_divisionCode as 'TSLDivision.code',
+        c.name as 'TSLDivision.name',
+        c.parent_codes as 'TSLDivision.parentCodes',
+        b.sys_org_code as 'sysOrgCode',
+        b.sys_company_code as 'sysCompanyCode',
+        b.create_name as 'createName',
+        b.create_by as 'createBy',
+        b.create_date as 'createDate',
+        b.update_name as 'updateName',
+        b.update_by as 'updateBy',
+        b.update_date as 'updateDate'
+    </sql>
+
+    <select id="get" resultType="TSLRLReservoirEntity">
+        select
+        <include refid="defaultColums"/>
+        from t_sl_rl_reservoir a
+        left join t_sl_base_river_lake b on b.id = a.id
+        left join t_sl_division c on c.code = b.division_divisionCode
+        where a.id = #{id}
+    </select>
+</mapper>

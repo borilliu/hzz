@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.base.DivisionDao">
+
+    <!-- start 嵌套查询  -->
+    <!-- 方式一（与方式二相同效果） 只能查询出一级和二级菜单 -->
+    <resultMap id="Division001" type="TSLDivisionEntity">
+        <id property="id" column="id" />
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="remarks" column="remarks"/>
+        <collection property="childrenList" ofType="TSLDivisionEntity">
+            <id property="id" column="childrenList.id" />
+            <result property="code" column="childrenList.code"/>
+            <result property="name" column="childrenList.name"/>
+            <result property="remarks" column="childrenList.remarks"/>
+        </collection>
+    </resultMap>
+
+    <!-- 方式二（与方式一相同效果） 只能查询出一级和二级菜单 -->
+    <resultMap id="result" type="TSLDivisionEntity">
+        <id property="id" column="id" />
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="remarks" column="remarks"/>
+        <collection property="childrenList" column="code" javaType="TSLDivisionEntity" resultMap="entity" />
+    </resultMap>
+
+    <resultMap id="entity" type="TSLDivisionEntity">
+        <id property="id" column="id" />
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="remarks" column="remarks"/>
+    </resultMap>
+    <!-- end 嵌套查询  -->
+
+    <!-- start 级联查询返回模型 为递归查询，会生成多条sql语句-->
+    <resultMap type="TSLDivisionEntity" id="fatherMap">
+        <id column="id" property="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="remarks" column="remarks"/>
+        <collection property="childrenList" ofType="TSLDivisionEntity" column="code" select="listById"/>
+    </resultMap>
+    <!-- end 级联查询返回模型 -->
+
+    <sql id="defaultCloumn">
+        a.id as 'id',
+        a.code as 'code',
+        a.parent_code as 'parent.code',
+        a.parent_codes as 'parentCodes',
+        a.name as 'name',
+        a.en_name as 'enName',
+        a.sort as 'sort',
+        a.sys_org_code as 'sysOrgCode',
+        a.sys_company_code as 'sysCompanyCode',
+        a.remarks as 'remarks',
+        a.create_name as 'createName',
+        a.create_by as 'createBy',
+        a.create_date as 'createDate',
+        a.update_name as 'updateName',
+        a.update_by as 'updateBy',
+        a.update_date as 'updateDate'
+    </sql>
+
+    <sql id="chlidernColumn">
+        b.id as 'childrenList.id',
+        b.code as 'childrenList.code',
+        b.parent_code as 'childrenList.parentCode',
+        b.name as 'childrenList.name',
+        b.enName as 'childrenList.enName',
+        b.sort as 'childrenList.sort',
+        b.sys_org_code as 'childrenList.sysOrgCode',
+        b.sys_company_code as 'childrenList.sysCompanyCode',
+        b.remarks as 'childrenList.remarks',
+        b.create_name as 'childrenList.createName',
+        b.create_by as 'childrenList.createBy',
+        b.create_date as 'childrenList.createDate',
+        b.update_name as 'childrenList.updateName',
+        b.update_by as 'childrenList.updateBy',
+        b.update_date as 'childrenList.updateDate'
+    </sql>
+
+   <!-- <select id="listTreeById" resultMap="Division001">
+        select
+        distinct <include refid="defaultCloumn"/>
+        ,<include refid="chlidernColumn"/>
+        from t_sl_division a
+        left join t_sl_division b on b.parent_code = a.divisionCode
+        <if test="id != null and id != ''">
+            where a.id = #{id}
+        </if>
+        <if test="id == null or id == ''">
+            where a.parent_code = 0
+        </if>
+    </select>-->
+
+    <select id="listTreeById" resultMap="fatherMap">
+        select
+        <include refid="defaultCloumn"/>
+        from t_sl_division a
+<!--        <if test="id != null and id != ''">-->
+            where a.parent_code = #{id}
+<!--        </if>-->
+<!--        <if test="id == null or id == ''">-->
+#             where a.parent_code = 0
+<!--        </if>-->
+    </select>
+
+    <select id="listById" resultType="TSLDivisionEntity">
+        select
+        <include refid="defaultCloumn"/>
+        from t_sl_division a
+        <!--        <if test="id != null and id != ''">-->
+        where a.parent_code = #{id}
+        <!--        </if>-->
+        <!--        <if test="id == null or id == ''">-->
+        #             where a.parent_code = 0
+        <!--        </if>-->
+    </select>
+
+    <select id="listAll" resultType="TSLDivisionEntity">
+        select
+        <include refid="defaultCloumn"/>
+        ,b.name as 'parent.name'
+        from t_sl_division a
+        left join t_sl_division b on b.code = a.parent_code
+    </select>
+
+    <select id="listByParentCode" resultType="TSLDivisionEntity">
+        select
+        <include refid="defaultCloumn"/>
+        ,b.name as 'parent.name'
+        from t_sl_division a
+        left join t_sl_division b on b.code = a.parent_code
+        where a.parent_code = #{parentCode}
+    </select>
+
+    <select id="listContainParentCode" resultType="TSLDivisionEntity">
+        select
+        <include refid="defaultCloumn"/>
+        ,b.name as 'parent.name'
+        from t_sl_division a
+        left join t_sl_division b on b.code = a.parent_code
+        where a.code = #{code} or a.parent_codes LIKE concat('%', #{code}, '%')
+    </select>
+
+    <select id="getByCode" resultType="TSLDivisionEntity">
+        select
+        <include refid="defaultCloumn"/>
+        from t_sl_division a
+        where a.code = #{code}
+    </select>
+</mapper>

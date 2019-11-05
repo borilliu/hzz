@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.statistical.HzReportDao">
+
+    <resultMap id="HzReport" type="com.saili.hzz.core.vo.HzReportVo">
+        <association property="riverChief" javaType="RiverLakeChiefEntity" >
+            <id property="id" column="riverChief.id" />
+            <result property="name" column="riverChief.name" />
+            <result property="duty" column="riverChief.duty" />
+            <result property="phone" column="riverChief.phone" />
+            <association property="division" javaType="TSLDivisionEntity" >
+                <id property="id" column="riverChief.division.id" />
+                <result property="name" column="riverChief.division.name" />
+            </association>
+        </association>
+        <collection property="riverLakeList" ofType="TSLBaseRiverLake">
+            <id property="id" column="riverLakeList.id" />
+            <result property="name" column="riverLakeList.name"/>
+            <association property="parent" javaType="TSLBaseRiverLake" >
+                <id property="id" column="riverLakeList.parent.id" />
+                <result property="name" column="riverLakeList.parent.name" />
+            </association>
+        </collection>
+    </resultMap>
+
+    <select id="listByDivisionCode" resultMap="HzReport">
+        select
+            a.id as 'riverChief.id',
+            a.name as 'riverChief.name',
+            a.duty as 'riverChief.duty',
+            d.name as 'riverChief.division.name',
+            c.name as 'riverLakeList.name',
+            e.name as 'riverLakeList.parent.name'
+        from t_sl_rl_chief a
+        left join t_sl_base_river_lake_user b on b.user_id = a.id
+        left join t_sl_base_river_lake c on b.base_river_lake_id = c.id
+        left join t_sl_division d on d.code = a.division_code
+        left join t_sl_base_river_lake e on e.code = c.PARENT_CODE
+        where a.division_code = #{code};
+    </select>
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.TestDataDao">
+    
+	<sql id="testDataColumns">
+		a.id AS "id",
+		a.email,
+		a.mobilePhone,
+		a.officePhone,
+		a.signatureFile,
+		a.portrait
+	</sql>
+
+	<sql id="testDataJoins">
+
+	</sql>
+    
+	<select id="get" resultType="TestUser">
+		SELECT 
+			<include refid="testDataColumns"/>
+		FROM t_s_user a
+		<include refid="testDataJoins"/>
+		WHERE a.id = #{id}
+	</select>
+</mapper>

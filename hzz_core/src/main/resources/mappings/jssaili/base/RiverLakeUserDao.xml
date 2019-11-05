@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.base.RiverLakeUserDao">
+    <sql id="defaultColums">
+        a.ID,
+        a.user_id,
+        a.base_river_lake_id
+    </sql>
+
+    <sql id="riverLakeColums">
+        rv.id as 'tslBaseRiverLake.id',
+        rv.code as 'tslBaseRiverLake.code',
+        rv.name as 'tslBaseRiverLake.name',
+        rv.river_lake_type as 'tslBaseRiverLake.riverLakeType',
+        rv.riverRangeData as 'tslBaseRiverLake.riverRangeData',
+        rv.mapCenterLngLat as 'tslBaseRiverLake.mapCenterLngLat',
+        rv.mapZoom as 'tslBaseRiverLake.mapZoom',
+        rv.archives_doc as 'tslBaseRiverLake.archivesDoc',
+        rv.policy_doc as 'tslBaseRiverLake.policyDoc',
+        rv.public_signs_doc as 'tslBaseRiverLake.publicSignsDoc',
+        rv.public_signs_lnglat as 'tslBaseRiverLake.publicSignsLnglat',
+        rv.photo as 'tslBaseRiverLake.photo',
+        rv.waterArea as 'tslBaseRiverLake.waterArea'
+    </sql>
+
+    <sql id="riverChiefColums">
+        rlc.id as 'riverLakeChief.id',
+        rlc.user_id as 'riverLakeChief.account.id',
+        rlc.name as 'riverLakeChief.name',
+        rlc.level as 'riverLakeChief.level.code',
+        rlc.type as 'f.type',
+        rlc.division_code as 'riverLakeChief.division.code',
+        rlc.depart_id as 'riverLakeChief.depart.id',
+        rlc.duty as 'riverLakeChief.duty',
+        rlc.phone as 'riverLakeChief.phone',
+        rlc.email as 'riverLakeChief.email'
+    </sql>
+
+    <select id="listByRiverLakeId" resultType="TSLBaseRiverLakeUser">
+        select
+        <include refid="defaultColums"/>
+        ,<include refid="riverLakeColums"/>
+        ,<include refid="riverChiefColums"/>
+        from t_sl_base_river_lake_user a
+        left join t_sl_base_river_lake rv on a.base_river_lake_id = rv.id
+        left join t_sl_rl_chief rlc on a.user_id = rlc.id
+        where a.base_river_lake_id = #{riverLakeId};
+    </select>
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.saili.hzz.core.dao.mybatisdao.event.RiverPatrolProcessHandledDao">
+    <sql id="defaultColumn">
+        a.id as 'id',
+        a.proc_inst_id as 'riverLakePatrolEvent.procInsId',
+        a.proc_inst_id as 'procInstId',
+        a.task_def_key as 'taskDefKey',
+        a.handle_user_id as 'riverLakeChief.id',
+        a.handle_date as 'handleDate',
+        a.handle_detail as 'handleDetail',
+        a.create_name,
+        a.create_by as 'createBy',
+        a.create_date as 'createDate',
+        a.update_name,
+        a.update_by as 'updateBy',
+        a.update_date as 'updateDate'
+    </sql>
+
+    <insert id="save">
+        insert into t_sl_river_patrol_process_handled(
+            id,
+            proc_inst_id,
+            task_def_key,
+            handle_user_id,
+            handle_date,
+            handle_detail,
+            create_by,
+            create_date,
+            update_by,
+            update_date
+        ) values (
+            #{id},
+            #{procInstId},
+            #{taskDefKey},
+            #{riverLakeChief.id},
+            #{handleDate},
+            #{handleDetail},
+            #{createBy},
+            #{createDate},
+            #{updateBy},
+            #{updateDate}
+        )
+    </insert>
+
+    <select id="list" resultType="RiverPatrolProcessHandledEntity">
+        select
+            <include refid="defaultColumn"/>
+            ,c.name as 'riverLakePatrolEvent.tslDivision.name',
+            d.division_code as 'riverLakeChief.division.code',
+            c.name as 'riverLakeChief.division.name',
+            c.parent_codes as 'riverLakeChief.division.parentCodes',
+            d.name as 'riverLakeChief.name',
+            d.type as 'riverLakeChief.type'
+        from t_sl_river_patrol_process_handled a
+        left join t_sl_rl_chief d on d.id = a.handle_user_id
+        left join t_sl_division c on c.code = d.division_code
+        where a.handle_date between #{form.startTime} and #{form.endTime}
+        <if test="form.city != null and form.city.code != ''">
+            and c.parent_codes LIKE concat('%', #{form.city.code}, '%')
+        </if>
+        <if test="form.province != null and form.province.code != ''">
+            and c.parent_codes LIKE concat('%', #{form.province.code}, '%')
+        </if>
+    </select>
+</mapper>
